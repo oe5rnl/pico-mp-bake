@@ -16,7 +16,7 @@ from machine import WDT
 # https://kofler.info/wp-content/uploads/pico-gpios.png
 # https://www.accessengineeringlibrary.com/content/book/9781260117585/back-matter/appendix1
 
-code_version = '0.8a 2021-08-27'
+code_version = '0.9a 2021-08-27'
 
 
 class Timeout():
@@ -773,6 +773,7 @@ class Bake():
 def main():
     #print('bake')
     config = Config()
+    config.wd.start(True)
     bake = Bake(config)
     console = Console(config, bake.set_attributes)
     dtmf = Dtmf()
@@ -781,6 +782,7 @@ def main():
     p28 = Pin(28,Pin.OUT)    
     m=0
     while True:
+        config.wd.feed()
         morse.play_msg()
         console.cmd()
 
@@ -789,7 +791,7 @@ def main():
             dtmf.cmd = False
 
         m += 1
-        if (m%500)==0:
+        if (m%100)==0:
             #print(m)
             pass
         p28.on()
