@@ -1,33 +1,91 @@
 import json
+
+
+class Config:
+
+    def __init__(self):
+
+        #self.wd = Wdt(8000)
         
+        self.config_file = 'config.json'
+
+        self.c = {
+                'saves': '0',
+                'Version': '0.99',
+                'CW Speed': '100',
+                'Bakentext': 'OE5RNL',
+                'On Time': '2',
+                'Pre Time': '2',
+                'Post Time':'2',
+                'CW Off Timeout': '20',
+                'ports':[    
+                    {'id':'0','Name':'LED',   'Mode':'B','gpio':'25','On': '01','Off':'00','Port On':'1', 'CW Off':'03','CW On':'04'},
+                    {'id':'1','Name':'10 GHZ','Mode':'B','gpio':'16','On': '11','Off':'10','Port On':'1', 'CW Off':'13','CW On':'14'},
+                    {'id':'2','Name':'24 GHZ','Mode':'S','gpio':'17','On': '21','Off':'20','Port On':'1', 'CW Off':'23','CW On':'24'},
+                    {'id':'3','Name':'74 GHZ','Mode':'S','gpio':'18','On': '31','Off':'30','Port On':'0', 'CW Off':'33','CW On':'34'},
+                    {'id':'4','Name':'FREI',  'Mode':'S','gpio':'19','On': '41','Off':'40','Port On':'0', 'CW Off':'43','CW On':'44'},
+                    {'id':'5','Name':'FREI',  'Mode':'S','gpio':'20','On': '51','Off':'50','Port On':'0', 'CW Off':'53','CW On':'54'},
+                    {'id':'6','Name':'FREI',  'Mode':'S','gpio':'21','On': '61','Off':'60','Port On':'0', 'CW Off':'63','CW On':'64'},
+                    {'id':'7','Name':'FREI',  'Mode':'S','gpio':'22','On': '71','Off':'70','Port On':'0', 'CW Off':'73','CW On':'74'},
+                ]
+                }
         
-c = {
-        "version":"0.8",
-        "cw_speed": "100",
-        "msg": "OE5RNL OE5NVL",
-        "on_time": 50,
-        "pre_time": 5,
-        "post_time": 5,
-        "timeout_msg": 20,
+        self.load()
 
-        "ports":[    
-            {"id":1,"mode":"b","pin":"25","on_cmd": "11","off_cmd":"10", "temp_on_cmd":"13","temp_off_cmd":"14"},
-            {"id":2,"mode":"b","pin":"21","on_cmd": "21","off_cmd":"20", "temp_on_cmd":"23","temp_off_cmd":"24"},
-            {"id":3,"mode":"b","pin":"22","on_cmd": "31","off_cmd":"30", "temp_on_cmd":"33","temp_off_cmd":"34"},
-            {"id":4,"mode":"b","pin":"24","on_cmd": "41","off_cmd":"40", "temp_on_cmd":"43","temp_off_cmd":"44"},
-            {"id":5,"mode":"s","pin":"25","on_cmd": "51","off_cmd":"50", "temp_on_cmd":"53","temp_off_cmd":"54"},
-            {"id":6,"mode":"s","pin":"26","on_cmd": "61","off_cmd":"60", "temp_on_cmd":"63","temp_off_cmd":"64"},
-            {"id":7,"mode":"s","pin":"27","on_cmd": "71","off_cmd":"70", "temp_on_cmd":"73","temp_off_cmd":"74"},
-        ]
-    }
+    def get_attr(self, a):
+        return self.c[a]
+
+    def set_attr(self,a,v):
+        self.c[a] = v
+
+    def get_port_attr(self,p,a):
+        return self.c['ports'][p][a]
+
+    def set_port_attr(self,p,a,v):
+        self.c['ports'][p][a] = v
+
+    def get_port(self,id):
+        return self.c['ports'][id]
+
+    def load(self):
+        try:
+            self.f = open(self.config_file,'r')
+            self.txt = self.f.read()
+            self.c = json.loads(self.txt)
+            print('config from fs loaded')
+        except: 
+            print('load failed -  use default')
+            self.c = self.c
+
+    def save(self):
+        print('s1')
+        self.set_attr('saves',str(int(self.get_attr('saves'))+1))
+
+        txt='daklsdjajsljkdaldjlajdlajldjasjdlajdlajdklalkdjakldjlajdlajldajlsdjaldlkakldadk'
+        txt+='daklsdjajsljkdaldjlajdlajldjasjdlajdlajdklalkdjakldjlajdlajldajlsdjaldlkakldadk'
+
+        #txt = 'Hallo'
+
+        with open(self.config_file, 'w') as fp:
+            print('s2')
+            json.dump(self.c, fp)
+            #fp.write(txt)
+            #fp.write(str(self.c))
+            print('s3')
+
+        print(self.c)
+
+    def get_intatt(self,a):
+        return int(self.get_attr(a))*1000
 
 
-print(c['ports'][2]['on_cmd'])
-print(c['version'])
 
-js = json.dumps(c)
-print(js)
+def main():
+    config=Config()
 
-v = js[0]
+    #while True:
+    config.save()
 
-a = js['ports'][0]['mode']
+if __name__ == "__main__":
+    main()
+
