@@ -1,4 +1,6 @@
-
+#
+# Bakencontroller by OE5RNL & OE5NVL
+#
 
 import utime
 from machine import UART, Pin, Timer
@@ -8,14 +10,13 @@ import json
 from machine import WDT
 
 # https://onlinetonegenerator.com/dtmf.html
-# from statemachine import StateMachine, State
 # https://docs.micropython.org/en/latest/wipy/tutorial/timer.html
 # https://docs.micropython.org/en/latest/library/machine.html
 # https://morsecode.world/international/timing.html
 # https://kofler.info/wp-content/uploads/pico-gpios.png
 # https://www.accessengineeringlibrary.com/content/book/9781260117585/back-matter/appendix1
 
-code_version = '0.7a 2021-08-24'
+code_version = '0.8a 2021-08-27'
 
 
 class Timeout():
@@ -46,7 +47,7 @@ class Timeout():
                     self.timers[i]['f']()
 
     def set(self, nr, t, f):
-        print('set='+str(t))
+        #print('set='+str(t))
         self.timers[nr]['t'] = t
         self.timers[nr]['f'] = f
  
@@ -72,7 +73,7 @@ class Dtmf:
         self.st.irq(trigger=Pin.IRQ_RISING, handler=self.dtmf)
   
     def dtmf(self,pin):
-        print("IRQ")
+        #print("IRQ")
         self.dtmf_code = 0
         self.dtmf_code = self.dtmf_code + self.d1.value() * 1
         self.dtmf_code = self.dtmf_code + self.d2.value() * 2 
@@ -138,7 +139,7 @@ class Line:
             #print(w)
             if ch in w:
                 ret = True
-                print(ret)
+                #print(ret)
         else:
             ret = False
         return ret
@@ -190,12 +191,14 @@ class Console:
         self.config = config
         self.save = False
 
-        #self.sw = Switch_port()
-
         self.c = b''
         self.prompt = b'\r\n0-7(edit Port), a(edit Allgemein), r(eset) c(print config) s(ave) >'
-        self.ueberschrift = "{0:^10}{1:^10}{2:<10}{3:^10}{4:^10}{5:^10}{6:^10}{6:^10}"
-        self.werte       = "{0:^10}{1:^10}{2:<10}{3:^10}{4:^10}{5:^10}{6:^10}{6:^10}"
+
+        #self.ueberschrift = "{0:^10}{1:^10}{2:<10}{3:^10}{4:^10}{5:^10}{6:^10}{6:^10}
+        #self.werte       = "{0:^10}{1:^10}{2:<10}{3:^10}{4:^10}{5:^10}{6:^10}{6:^10}"
+        #
+        self.ueberschrift = "{0:^5}{1:^13}{2:<12}{3:^12}{4:^12}{5:^12}{6:^12}{6:^12}"
+        self.werte        = "{0:^5}{1:^13}{2:<12}{3:^12}{4:^12}{5:^12}{6:^12}{6:^12}"
 
         self.u = UART(id=0, baudrate=9600, bits=8, parity=None, stop=1, timeout=0, rxbuf=1024, txbuf=2048)
         self.flush()
@@ -250,32 +253,23 @@ class Console:
         self.u.write(b'\r\n')
 
     def edit_port(self,c):
-        #self.u.write(b'\r\nPort number: ')
-        #c=self.read_char()
         i = int.from_bytes(c,'big')-48
-        #self.u.write(c)
         self.crlf()
         self.crlf()
         f = "Edit Port {0} {1:<15} ({2:<7}) Neu: "
-  
+    
         if c in [b'0',b'1',b'2',b'3',b'4',b'5',b'6',b'7']:
-            key = [['Name',15,'Aa',''],['Port On',1,'n',''],['Mode',1,'w','BSbs'],['On',10,'n',''],['Off',10,'n',''],['CW Off',10,'n',''],['CW On',10,'n','']]
+            key = [['Name',15,'Aa','','Port Name'],['Port On',1,'n','','Port on/off'],['Mode',1,'w','BSbs','Bake/Switch'],['On',10,'n','','DTMF-Cmd On'],['Off',10,'n','','DTMF-Cmd Off'],['CW Off',10,'n','','Temp CW-Cmd On'],['CW On',10,'n','','Temp CW-Cmd Off']]
             for e in key:                     
                 if self.config.get_port_attr(i,'Mode') == 'S' and (e[0] == 'CW Off' or e[0] == 'CW On'):
                     pass                          
                 else:
-
-                    self.u.write(f.format(i, e[0], self.config.get_port_attr(i,e[0]).encode('utf-8'),''))
+                    self.u.write(f.format(i, e[4], self.config.get_port_attr(i,e[0]).encode('utf-8'),''))
                     line = self.line.read(e, default=self.config.get_port_attr(i,e[0]).encode('utf-8'))
                     self.config.set_port_attr(i,e[0],line)
-                    # write attribute into port object
-                    #if e[0] == 'Port On':
-                    #    self.port_onoff(i,line)
-
                     self.crlf()
                      
             self.set_attributes(True)
-
 
     def edit_allgemein(self):
         self.crlf()
@@ -287,9 +281,9 @@ class Console:
             self.config.set_attr(e[0],line)
             self.crlf()
 
-        print('edit_allgemein-1')
+        #print('edit_allgemein-1')
         self.set_attributes(True)
-        print('edit_allgemein-2')
+        #print('edit_allgemein-2')
     
     def print_config(self):
 
@@ -309,7 +303,8 @@ class Console:
         self.u.write(b'CW Timeout     : '+self.config.get_attr('CW Off Timeout')+'\r\n')
         self.u.write(b'\r\n')
 
-        self.u.write(self.ueberschrift.format('Port','Status','Name','Mode','On','Off','CW aus','CW ein')+'\r\n')    
+        #self.u.write(self.ueberschrift.format('Port','Status','Name','Mode','On','Off','CW aus','CW ein')+'\r\n')    
+        self.u.write(self.ueberschrift.format('Port','Port on/off','Port Name','Bake/Switch','DTMF-Cmd On','DTMF-Cmd Off','Temp CW-Cmd On','Temp CW-Cmd Off')+'\r\n')    
         for i in range(8):
             self.show_port_data(i)
                                                         
@@ -417,27 +412,28 @@ class Config:
             self.f = open(self.config_file,'r')
             self.txt = self.f.read()
             self.c = json.loads(self.txt)
-            print('config from fs loaded')
+            #print('config from fs loaded')
         except: 
-            print('load failed -  use default')
+            #print('load failed -  use default')
             self.c = self.c
 
     def save(self):
 
-        print('SAVE ##############################################################')
+        #print('SAVE ##############################################################')
         self.set_attr('saves',str(int(self.get_attr('saves'))+1))
 
         try:
             with open(self.config_file, 'w') as fp:
-                print('s2')
+                #print('s2')
                 json.dump(self.c, fp)
                 #fp.write(txt)
-                print('s3')
-            print('s4')
+                #print('s3')
+            #print('s4')
         except:
-            print('save ERROR')
+            #print('save ERROR')
+            pass
 
-        print(self.c)
+        #print(self.c)
 
     def get_intatt(self,a):
         return int(self.get_attr(a))*1000
@@ -515,7 +511,7 @@ class Port:
     def morse_off(self):
         if (self.mode == 'B') and self.port_on and self.morse_aktiv:          
             self.p.off()
-            print('self.p.off()')
+            #print('self.p.off()')
     
     def morse_temp_on(self): # Morsen einschalten
         self.morse_aktiv = True
@@ -527,10 +523,10 @@ class Port:
  
 class Morse:
 
-    def __init__(self, ports):
+    def __init__(self, config,ports):
       
-        self.txt=""
         self.ports=ports
+        self.config = config
    
         self.play = False ##???
 
@@ -539,7 +535,9 @@ class Morse:
         self.next_state = -9
         self.last_state = 0
         
-        self.len_txt = 0
+        self.txt=config.get_attr('Bakentext')
+        self.len_txt = len(self.txt)
+
         self.chi = 0      # index im Text
         self.ch = ''      # ein zeichen aus dem Text 
         self.cwch = ''    # Punkte und Striche eines Zeichens
@@ -570,11 +568,35 @@ class Morse:
         # dit length in milliseconds : 60ms  = 100bpm = 20 wpm
         # dit length in milliseconds :  20ms = 300bpm = 60 wpm
 
-        bpm = 60
-        wpm = bpm/5
-        ms = 60/(50*(bpm/5))*1000
+        # bpm = int(config.get_attr('CW Speed'))  # 60
+        # wpm = bpm/5
+        # ms = 60/(50*(bpm/5))*1000
 
-        print("".format(bpm,wpm,))
+        # print("".format(bpm,wpm,))
+
+        # self.t_punkt  = int(ms)
+        # self.t_strich = int(ms * 3)
+        # self.t_pause1 = int(ms * 1)
+        # self.t_pause3 = int(ms * 3)
+        # self.t_pause7 = int(ms * 7)
+
+        # print("bpm={0} wpm={1} punkt={2} strich={3}".format(bpm, wpm, ms, ms*3),end='')
+
+        self.cw_speed_calc()
+
+        self.i = 0
+  
+    def cw_speed_calc(self):
+        # dit length in milliseconds : 240ms =  20bpm =  5 wpm
+        # dit length in milliseconds : 100ms =  60bpm = 12 wpm
+        # dit length in milliseconds : 60ms  = 100bpm = 20 wpm
+        # dit length in milliseconds :  20ms = 300bpm = 60 wpm
+
+        bpm = int(self.config.get_attr('CW Speed'))  # 60
+        wpm = int(bpm/5)
+        ms = int(60/(50*(bpm/5))*1000)
+
+        #print("".format(bpm,wpm,))
 
         self.t_punkt  = int(ms)
         self.t_strich = int(ms * 3)
@@ -582,14 +604,9 @@ class Morse:
         self.t_pause3 = int(ms * 3)
         self.t_pause7 = int(ms * 7)
 
-        print("bpm={0} wpm={1} punkt={2} strich={3}".format(bpm, wpm, ms, ms*3),end='')
+        #print("bpm={0} wpm={1} punkt={2} strich={3}".format(bpm, wpm, ms, ms*3))
 
-        self.t_traeger = 5000
-        self.t_pre = 2000
-        self.t_post = 2000
 
-        self.i = 0
-  
     def stop_timer(self):
         self.tim.deinit()
         pass
@@ -612,7 +629,7 @@ class Morse:
         for e in self.ports:
             e.morse_off()        
 
-    def dummy(self,x):
+    def wait(self,x):
         self.state = self.next_state
         pass
 
@@ -622,20 +639,20 @@ class Morse:
         if self.state == -200:
             self.sync()
             self.ports_on()
-            self.tim.init(period=self.t_traeger, mode=Timer.ONE_SHOT, callback=self.dummy)
+            self.tim.init(period=int(int(self.config.get_attr('On Time'))*1000), mode=Timer.ONE_SHOT, callback=self.wait)
             self.next_state = -201
             self.state = 999
 
         # pre
         if self.state == -201:
             self.ports_off()
-            self.tim.init(period=self.t_pre, mode=Timer.ONE_SHOT, callback=self.dummy)
+            self.tim.init(period=int(int(self.config.get_attr( 'Pre Time'))*1000), mode=Timer.ONE_SHOT, callback=self.wait)
             self.next_state = -1 # CW Text ausgeben
             self.state = 999
 
         # post
         if self.state == -202:
-            self.tim.init(period=self.t_post, mode=Timer.ONE_SHOT, callback=self.dummy)
+            self.tim.init(period=int(int(self.config.get_attr('Post Time'))*1000), mode=Timer.ONE_SHOT, callback=self.wait)
             self.ports_off()
             self.next_state = -200
             self.state = 999
@@ -647,6 +664,8 @@ class Morse:
             self.cwch =''
             self.cwchi = 0
             self.state = 0
+            self.cw_speed_calc()
+            
 
         if self.state == 0: 
             #print('state0='+str(self.state))
@@ -665,13 +684,13 @@ class Morse:
         elif self.state == 1: 
             #print('state1='+str(self.state))
             if self.cwch[self.cwchi] == '.':
-                self.tim.init(period=self.t_punkt, mode=Timer.ONE_SHOT, callback=self.dummy)
+                self.tim.init(period=self.t_punkt, mode=Timer.ONE_SHOT, callback=self.wait)
                 self.next_state = 97
                 self.state = 999  
                 #print('to 100')
 
             elif self.cwch[self.cwchi] == '-':
-                self.tim.init(period=self.t_strich, mode=Timer.ONE_SHOT, callback=self.dummy)
+                self.tim.init(period=self.t_strich, mode=Timer.ONE_SHOT, callback=self.wait)
                 self.next_state = 97
                 self.state = 999              
             
@@ -709,19 +728,19 @@ class Morse:
 
       
         elif self.state == 99:   # pause zwischen Elementen im morsezeichen
-            self.tim.init(period=self.t_pause1, mode=Timer.ONE_SHOT, callback=self.dummy)
+            self.tim.init(period=self.t_pause1, mode=Timer.ONE_SHOT, callback=self.wait)
             self.state = 999
             self.next_state = 1            
 
         elif self.state == 95:       
             #    self.state = 0
-            self.tim.init(period=self.t_pause7, mode=Timer.ONE_SHOT, callback=self.dummy)
+            self.tim.init(period=self.t_pause7, mode=Timer.ONE_SHOT, callback=self.wait)
             self.state = 999
             self.next_state = 0           
 
                                
         elif self.state == 96:   # Zeit zwischen Morsezeichen
-            self.tim.init(period=self.t_pause3, mode=Timer.ONE_SHOT, callback=self.dummy)
+            self.tim.init(period=self.t_pause3, mode=Timer.ONE_SHOT, callback=self.wait)
             self.state = 999
             self.next_state = 0          
  
@@ -739,17 +758,11 @@ class Morse:
             #print('999')
             pass
 
-        #time.sleep_ms(2)
-
         # if self.last_state != self.state:
         #    print(self.state)
         # self.last_state = self.state 
 
         return True
-
-# def d():
-#     print('d')
-#     pass  
 
 class Bake():
     def __init__(self,config):
@@ -766,7 +779,7 @@ class Bake():
         self.timeout = Timeout()
 
     def dtmf_cmd(self,cmd):
-        print('bake.ctl-1')
+        #print('bake.ctl-1')
         for p in self.ports:  
 
             # Port ein/aus
@@ -777,14 +790,14 @@ class Bake():
                 self.config.save()
 
             elif p.off_cmd == cmd:           
-                print('*1')
+                #print('*1')
                 p.bit_off()     
                 self.config.set_port_attr(p.id,'Port On','0') 
                 self.config.save()
 
             # Morsen unterdrücken/freigeben
             elif p.morse_on_cmd == cmd:
-                print('on')
+                #print('on')
                 p.morse_temp_on() # Morsen einschalten 
          
             elif p.morse_off_cmd == cmd:
@@ -799,20 +812,17 @@ class Bake():
         
       
     def set_attributes(self, s=True):
-        print('Bake.set')
+        #print('Bake.set')
   
         for i in range(8):
  
             self.ports[i].set_id(int(self.config.get_port_attr(i,'id')))
-            ccc=self.config.get_port_attr(i,'gpio')
-            self.ports[i].set_gpio(ccc)
-
+            self.ports[i].set_gpio(self.config.get_port_attr(i,'gpio'))
             if self.config.get_port_attr(i,'Port On') == '1':
                 self.ports[i].set_port_on(True)
             else:
                 self.ports[i].set_port_on(False)
-            print('set_attributes:'+str(self.ports[i].port_on))
-            
+            #print('set_attributes:'+str(self.ports[i].port_on))         
             self.ports[i].set_mode(self.config.get_port_attr(i,'Mode'))
             self.ports[i].set_name(self.config.get_port_attr(i,'Name')) 
             self.ports[i].set_on_cmd(self.config.get_port_attr(i,'On')) 
@@ -824,14 +834,14 @@ class Bake():
             self.config.save()  
                                 
 def main():
-    print('bake')
+    #print('bake')
     config = Config()
     bake = Bake(config)
     console = Console(config, bake.set_attributes)
     dtmf = Dtmf()
-    morse = Morse(bake.ports)
+    morse = Morse(config,bake.ports)
 
-    morse.set_txt(config.c['Bakentext'])
+    #morse.set_txt(config.c['Bakentext'])
     p28 = Pin(28,Pin.OUT)
     
     m=0
@@ -845,7 +855,8 @@ def main():
 
         m += 1
         if (m%500)==0:
-            print(m)
+            #print(m)
+            pass
         p28.on()
         time.sleep_us(500)
         p28.off()
