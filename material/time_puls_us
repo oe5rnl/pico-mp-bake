@@ -1,0 +1,6 @@
+
+pin25 = machine.Pin(25, Pin.OUT) 
+machine.time_puls_us(pin25,1,4000)
+
+machine.time_pulse_us(pin25,1,4000)
+
