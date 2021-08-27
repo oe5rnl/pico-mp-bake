@@ -224,13 +224,6 @@ class Console:
             c=self.u.read(1) 
             if c != None:    
 
-                # if do_edit_port():
-                #     pass
-
-                # if do_edit_allgemein():
-                #     pass
-
-
                 if c == b'\r':
                     self.print_config()
                     self.u.write(b' ')
