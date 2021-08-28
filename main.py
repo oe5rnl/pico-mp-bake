@@ -18,7 +18,7 @@ from machine import WDT
 # https://kofler.info/wp-content/uploads/pico-gpios.png
 # https://www.accessengineeringlibrary.com/content/book/9781260117585/back-matter/appendix1
 
-code_version = '0.9a 2021-08-27'
+code_version = '0.9b 2021-08-27'
 
 class Timeout():
 
@@ -200,7 +200,7 @@ class Console:
 
         self.u = UART(id=0, baudrate=9600, bits=8, parity=None, stop=1, timeout=0, rxbuf=1024, txbuf=2048)
         self.flush()
-        self.u.write(b'\n\r\n\r\n\r\n\rBeacon-Controller by OE5RNL / OE5NVL for OE5VRL\n\r')
+        self.u.write(b'\n\r\n\r\n\r\n\rBeacon-Controller by OE5RNL / OE5NVL\n\r')
         self.u.write(b'\n\rpress Enter for config >')
         self.line = Line(self.u,self.config.wd)   #.encode('utf-8')
 
@@ -275,7 +275,7 @@ class Console:
 
         f = "{0:<12} : {1:<7} {2:<10}  {3:<10}"
 
-        self.u.write(b'\n\r\n\rBeacon-Controller by OE5RNL & OE5NVL für OE5VRL\n\r\n\r')
+        self.u.write(b'\n\r\n\rBeacon-Controller by OE5RNL / OE5NVL\n\r\n\r')
         self.u.write(b'Code-Version   : '+code_version+'\r\n')
         self.u.write(b'Config-Version : '+self.config.get_attr('Version')+'\r\n')        
         self.u.write(b'Saves          : '+self.config.get_attr('saves')+'\r\n')
