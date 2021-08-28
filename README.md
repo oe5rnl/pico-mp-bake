@@ -1,6 +1,6 @@
 # pico-mp-bake-mn
 
-Bakencontroller für OE5XBM
+Bakencontroller 
 
 Funktionen
 
@@ -14,6 +14,10 @@ Funktionen
 * Watchdog mit 8 Sekunden
 
 Befehle
-* Die Stroktur der DTMF Befehle laut: * cmd #
-* cmd sind die Ziffern 0-9
-' Ein Port kann EIn oder ausgeschalten 
+* Die Struktur der DTMF Befehle laut: * cmd #
+* cmd sind die Ziffern 0-9 A-D (Achtung: D wird auch durch eine zweite Harware ausgewertet!)
+
+* Ein Port kann Ein oder ausgeschalten werden
+
+
+![consoles://github.com/oe5rnl/pico-mp-bake-mn/edit/master//1.png=true)
