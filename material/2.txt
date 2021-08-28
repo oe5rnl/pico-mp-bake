@@ -1,7 +1,0 @@
-cd c:\0_daten\0_dev\pico\projekte_mp\pico-mp-bake
-
-import os
-f=open('config.txt')
-print(f.read())
-
-import uasyncio as asyncio
