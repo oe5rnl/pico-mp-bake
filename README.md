@@ -42,4 +42,13 @@ s für Save (normalerweise nicht notwendig. Es Änderungen werden automatisch ge
 
 r für Reset (normalerweise nicht notwendig)
 
+
+GPIO für Ports:
+
+Die Festlegung der gpios für die Ports erfolgt in der Struktur config.c
+
+Beispiel:
+
+{'id':'0','Name':'LED',   'Mode':'B','gpio':'25','On': '01','Off':'00','Port On':'1', 'CW Off':'03','CW On':'04'},
+
 Realisiert mit Raspberry Pi Pico und Micropython 1.16
