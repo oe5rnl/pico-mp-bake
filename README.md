@@ -1,6 +1,6 @@
-# pico-mp-bake-mn
+# pico-mp-bake-mn  
 
-Bakencontroller 
+Bakencontroller OE5RNL / OE5NVL
 
 Funktionen
 
