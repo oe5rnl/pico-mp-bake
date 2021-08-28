@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 #
 # Bakencontroller by OE5RNL & OE5NVL
 #
@@ -18,15 +20,13 @@ from machine import WDT
 
 code_version = '0.9a 2021-08-27'
 
-
 class Timeout():
 
     def __init__(self):
         
         self.timers = [ {'t':-99,'f':object},{'t':-99,'f':object},{'t':-99,'f':object},{'t':-99,'f':object},
                         {'t':-99,'f':object},{'t':-99,'f':object},{'t':-99,'f':object},{'t':-99,'f':object}                 
-                      ]
-     
+                      ]   
         self.tim = Timer()
         self.start_timer()
 
@@ -47,7 +47,6 @@ class Timeout():
                     self.timers[i]['f']()
 
     def set(self, nr, t, f):
-        #print('set='+str(t))
         self.timers[nr]['t'] = t
         self.timers[nr]['f'] = f
  
@@ -201,7 +200,7 @@ class Console:
 
         self.u = UART(id=0, baudrate=9600, bits=8, parity=None, stop=1, timeout=0, rxbuf=1024, txbuf=2048)
         self.flush()
-        self.u.write(b'\n\r\n\r\n\r\n\rBeacon-Controller by OE5RNL & OE5NVL für OE5VRL\n\r')
+        self.u.write(b'\n\r\n\r\n\r\n\rBeacon-Controller by OE5RNL / OE5NVL for OE5VRL\n\r')
         self.u.write(b'\n\rpress Enter for config >')
         self.line = Line(self.u,self.config.wd)   #.encode('utf-8')
 
@@ -223,7 +222,6 @@ class Console:
         if self.u.any():
             c=self.u.read(1) 
             if c != None:    
-
                 if c == b'\r':
                     self.print_config()
                     self.u.write(b' ')
@@ -236,8 +234,7 @@ class Console:
                 elif c == b'r':
                     machine.reset( )
                 elif c == b's':
-                    self.stop_timer()
-                    #self.config.save()
+                    self.config.save()
             
                 self.u.write(self.prompt)
         
@@ -272,7 +269,6 @@ class Console:
             line = self.line.read(e, default=self.config.get_attr(e[0]).encode('utf-8'))
             self.config.set_attr(e[0],line)
             self.crlf()
-
         self.set_attributes(True)
     
     def print_config(self):
@@ -418,7 +414,6 @@ class Config:
         except:
             #print('save ERROR')
             pass
-
         #print(self.c)
 
     def get_intatt(self,a):
@@ -448,7 +443,6 @@ class Port:
 
     def set_port_on(self,port_on):
         self.port_on = port_on    
-        #print('set_port_on='+str(self.port_on))
         if not self.port_on:
             self.p.off()
 
@@ -489,12 +483,10 @@ class Port:
     def morse_on(self):
         if self.mode == 'B' and self.port_on and self.morse_aktiv:
             self.p.on()
-            #print('###self.p.on()')
 
     def morse_off(self):
         if (self.mode == 'B') and self.port_on and self.morse_aktiv:          
             self.p.off()
-            #print('self.p.off()')
     
     def morse_temp_on(self): # Morsen einschalten
         self.morse_aktiv = True
@@ -511,8 +503,6 @@ class Morse:
         self.ports=ports
         self.config = config
    
-        self.play = False ##???
-
         # state machine variable
         self.state = -200
         self.next_state = -9
@@ -528,19 +518,20 @@ class Morse:
         self.len_cwch = 0 # 
 
         self.MorseCodes = {
-        '0' : "-----",'1' : ".----",'2' : "..---",'3' : "...--",'4' : "....-",'5' : ".....",'6' : "-....",'7' : "--...",
-        '8' : "---..",'9' : "----.",'A' : ".-",'B' : "-...",'C' : "-.-.",'E' : ".",'F' : "..-.",'G' : "--.",'H' : "....",
-        'I' : "..",'J' : ".---",'K' : "-.-",'L' : ".-..",          
-        'M' : "--",'N' : "-.",'O' : "---",'P' : ".--.",'Q' : "--.-",'R' : ".-.",'S' : "...",'T' : "-",'U' : "..-",'V' : "...-",'W' : ".--",'X' : "-..-",'Y' : "-.--",'Z' : "--..",
-        '$' : "...-..-",'&' : ".-...",'(' : "-.--.",')' : "-.--.-",'+' : ".-.-.",'-' : "-....-",'.' : ".-.-.-",',' : "--..--",'/' : "-..-.",
-        ':' : "---...",';' : "-.-.-.",'=' : "-...-",'?' : "..--..",'@' : ".--.-.","'" : ".----.",'"' : ".-..-.",'Ä' : ".-.-",'Ö' : "---.",'Ü' : "..--",'ß' : "···−−··",'_' : "··−−·−",
+        '0' : "-----", '1' : ".----",'2' : "..---",'3' : "...--",'4' : "....-",'5' : ".....",'6' : "-....",'7' : "--...",
+        '8' : "---..", '9' : "----.",'A' : ".-",'B' : "-...",'C' : "-.-.",'E' : ".",'F' : "..-.",'G' : "--.",'H' : "....",
+        'I' : "..", 'J' : ".---",'K' : "-.-",'L' : ".-..",'M' : "--",'N' : "-.",'O' : "---",'P' : ".--.",'Q' : "--.-",'R' : ".-.",
+        'S' : "...", 'T' : "-",'U' : "..-",'V' : "...-",'W' : ".--",'X' : "-..-",'Y' : "-.--",'Z' : "--..",'$' : "...-..-",
+        '&' : ".-...", '(' : "-.--.",')' : "-.--.-",'+' : ".-.-.",'-' : "-....-",'.' : ".-.-.-",',' : "--..--",'/' : "-..-.",
+        ':' : "---...", ';' : "-.-.-.",'=' : "-...-",'?' : "..--..",'@' : ".--.-.","'" : ".----.",'"' : ".-..-.",'Ä' : ".-.-",
+        'Ö' : "---.", 'Ü' : "..--",'ß' : "···−−··",'_' : "··−−·−",
         ' ' : "space"
         
-         #f   '%' : ".........",
-         #f   '\'' : ".----.",
+         #f '%' : ".........",
+         #f '\'' : ".----.",
          #f '*' : "-..-",
-         #f  '<' : ".........",
-         #f  '>' : ".........",     
+         #f '<' : ".........",
+         #f '>' : ".........",     
      
         }
 
@@ -554,7 +545,7 @@ class Morse:
         # dit length in milliseconds : 60ms  = 100bpm = 20 wpm
         # dit length in milliseconds :  20ms = 300bpm = 60 wpm
 
-        bpm = int(self.config.get_attr('CW Speed'))  # 60
+        bpm = int(self.config.get_attr('CW Speed')) 
         wpm = int(bpm/5)
         ms = int(60/(50*(bpm/5))*1000)
 
@@ -570,7 +561,6 @@ class Morse:
 
     def stop_timer(self):
         self.tim.deinit()
-        pass
 
     def set_txt(self,txt):
         self.txt = txt  # Text ist durch console schon gestrippt und keine doppelten ' '
@@ -675,8 +665,7 @@ class Morse:
                 else:
                     # keine Zeichen im Text mehr -> txt Ende
                     self.state = 1000     
-
-      
+    
         elif self.state == 99:   # pause zwischen Elementen im morsezeichen
             self.tim.init(period=self.t_pause1, mode=Timer.ONE_SHOT, callback=self.wait)
             self.state = 999
@@ -743,13 +732,7 @@ class Bake():
             elif p.morse_off_cmd == cmd:
                 p.morse_temp_off() # Morsen temp. ausschalten
                 self.timeout.set(1, int(self.config.get_attr('CW Off Timeout')), p.morse_temp_on)
- 
-    def port_onoff(self, port, value):
-        if value == '1':
-            self.ports[port].bit_on()
-        if value == '0':
-            self.ports[port].bit_off()
-             
+        
     def set_attributes(self, s=True):
 
         for i in range(8):
