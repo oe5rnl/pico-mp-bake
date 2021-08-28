@@ -21,9 +21,25 @@ DTMF Befehle
 * Ein Port kann Ein oder ausgeschalten werden 
 * Die Ausgabe des Morsetextes kann für n Sekunden unerbunden werden.
 
-Konfiguration über die serielle Schnittstelle
+Konfiguration über die serielle Schnittstelle (Eingabe: Enter)
 
-![consoles](https://github.com/oe5rnl/pico-mp-bake-mn/edit/master/1.png=true)
+![console](https://github.com/oe5rnl/pico-mp-bake-mn/blob/master/1.png?raw=true)
 
+Edit Allgemeine Parameter (Eingabe: a)
+
+![console](https://github.com/oe5rnl/pico-mp-bake-mn/blob/master/edit_allgemein.png?raw=true)
+
+Edit Port (Eingabe: Port Nummer)
+
+![console](https://github.com/oe5rnl/pico-mp-bake-mn/blob/master/edit_port.png?raw=true)
+
+
+Weitere Befehle:
+
+c Für Konfig anzeigen
+
+s für Save (normalerweise nicht notwendig. Es Änderungen werden automatisch gespeichert)
+
+r für Reset (normalerweise nicht notwendig)
 
 Realisiert mit Raspberry Pi Pico und Micropython 1.16
