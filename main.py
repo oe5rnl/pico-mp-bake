@@ -18,7 +18,7 @@ from machine import WDT
 # https://kofler.info/wp-content/uploads/pico-gpios.png
 # https://www.accessengineeringlibrary.com/content/book/9781260117585/back-matter/appendix1
 
-code_version = '0.9b 2021-08-27'
+code_version = '0.9f 2021-08-27'
 
 class Timeout():
 
@@ -35,6 +35,7 @@ class Timeout():
 
     def start_timer(self):
         self.tim.init(mode=Timer.PERIODIC, period=1000, callback=self.tick)
+        pass
 
     def tick(self,x):
 
@@ -58,41 +59,49 @@ class Dtmf:
         self.dtmf_code = 0
         self.dtmf_char = ''
         self.eingabe_mode = False
+        self.st_old = 0
         
         self.cmd = False
 
         self.bc = {1:'1',2:'2',3:'3',4:'4',5:'5',6:'6',7:'7',8:'8',9:'9',10:'0',11:'*',12:'#',13:'A',14:'B',15:'C',0:'D'}
 
-        self.d1 = Pin(2, Pin.IN, Pin.PULL_DOWN)
-        self.d2 = Pin(3, Pin.IN, Pin.PULL_DOWN)
-        self.d3 = Pin(4, Pin.IN, Pin.PULL_DOWN)
-        self.d4 = Pin(5, Pin.IN, Pin.PULL_DOWN)
+        self.d4 = Pin(2, Pin.IN, Pin.PULL_DOWN)
+        self.d3 = Pin(3, Pin.IN, Pin.PULL_DOWN)
+        self.d2 = Pin(4, Pin.IN, Pin.PULL_DOWN)
+        self.d1 = Pin(5, Pin.IN, Pin.PULL_DOWN)
         self.st = Pin(7, Pin.IN, Pin.PULL_DOWN)
 
-        self.st.irq(trigger=Pin.IRQ_RISING, handler=self.dtmf)
+        #self.st.irq(trigger=Pin.IRQ_RISING, handler=self.dtmf)
   
-    def dtmf(self,pin):
-        #print("IRQ")
-        self.dtmf_code = 0
-        self.dtmf_code = self.dtmf_code + self.d1.value() * 1
-        self.dtmf_code = self.dtmf_code + self.d2.value() * 2 
-        self.dtmf_code = self.dtmf_code + self.d3.value() * 4 
-        self.dtmf_code = self.dtmf_code + self.d4.value() * 8 
+    #def dtmf(self,pin):
+    def dtmf(self):
+       
+        st = self.st.value()
+        if ((self.st_old == 0) and (st == 1)):
+            #print("IRQ")
+            self.dtmf_code = 0
+            self.dtmf_code = self.dtmf_code + self.d1.value() * 1
+            self.dtmf_code = self.dtmf_code + self.d2.value() * 2 
+            self.dtmf_code = self.dtmf_code + self.d3.value() * 4 
+            self.dtmf_code = self.dtmf_code + self.d4.value() * 8 
 
-        self.dtmf_char = self.bc[self.dtmf_code]
-              
-        if self.dtmf_char == '*':
-              #print("reset eingabe *")
-              self.command = ""
-              self.eingabe_mode = True
-        elif self.eingabe_mode and self.dtmf_char == '#':
-              #print("command fertig")
-              self.eingabe_mode = False
-              #print("in dtmf " + self.command)      
-              self.cmd = True
-        elif self.eingabe_mode and self.dtmf_char != '*' and self.dtmf_char != '#':  
-              self.command = self.command+str(self.dtmf_char)
-              #print("eingabe " + self.dtmf_char)
+            self.dtmf_char = self.bc[self.dtmf_code]
+            #print(self.dtmf_char)
+                
+            if self.dtmf_char == '*':
+                #print("reset eingabe *")
+                self.command = ""
+                self.eingabe_mode = True
+            elif self.eingabe_mode and self.dtmf_char == '#':
+                #print("command fertig")
+                self.eingabe_mode = False
+                #print("in dtmf " + self.command)      
+                self.cmd = True
+            elif self.eingabe_mode and self.dtmf_char != '*' and self.dtmf_char != '#':  
+                self.command = self.command+str(self.dtmf_char)
+                #print("eingabe " + self.dtmf_char)
+
+        self.st_old = st
 
 class Line:
 
@@ -195,8 +204,8 @@ class Console:
         #self.ueberschrift = "{0:^10}{1:^10}{2:<10}{3:^10}{4:^10}{5:^10}{6:^10}{6:^10}
         #self.werte       = "{0:^10}{1:^10}{2:<10}{3:^10}{4:^10}{5:^10}{6:^10}{6:^10}"
         #
-        self.ueberschrift = "{0:^5}{1:^13}{2:<12}{3:^12}{4:^12}{5:^15}{6:^15}{6:^15}"
-        self.werte        = "{0:^5}{1:^13}{2:<12}{3:^12}{4:^12}{5:^15}{6:^15}{6:^15}"
+        self.ueberschrift = "{0:^5}{1:^13}{2:<12}{3:^12}{4:^12}{5:^15}{6:^15}{7:^15}"
+        self.werte        = "{0:^5}{1:^13}{2:<12}{3:^12}{4:^12}{5:^15}{6:^15}{7:^15}"
 
         self.u = UART(id=0, baudrate=9600, bits=8, parity=None, stop=1, timeout=0, rxbuf=1024, txbuf=2048)
         self.flush()
@@ -356,21 +365,21 @@ class Config:
         self.c = {
                 'saves': '0',
                 'Version': '0.99',
-                'CW Speed': '100',
+                'CW Speed': '60',
                 'Bakentext': 'OE5RNL',
-                'On Time': '2',
+                'On Time': '5',
                 'Pre Time': '2',
                 'Post Time':'2',
                 'CW Off Timeout': '20',
                 'ports':[    
-                    {'id':'0','Name':'LED',   'Mode':'B','gpio':'25','On': '01','Off':'00','Port On':'1', 'CW Off':'03','CW On':'04'},
-                    {'id':'1','Name':'10 GHZ','Mode':'B','gpio':'16','On': '11','Off':'10','Port On':'1', 'CW Off':'13','CW On':'14'},
-                    {'id':'2','Name':'24 GHZ','Mode':'S','gpio':'17','On': '21','Off':'20','Port On':'1', 'CW Off':'23','CW On':'24'},
-                    {'id':'3','Name':'74 GHZ','Mode':'S','gpio':'18','On': '31','Off':'30','Port On':'0', 'CW Off':'33','CW On':'34'},
-                    {'id':'4','Name':'FREI',  'Mode':'S','gpio':'19','On': '41','Off':'40','Port On':'0', 'CW Off':'43','CW On':'44'},
-                    {'id':'5','Name':'FREI',  'Mode':'S','gpio':'20','On': '51','Off':'50','Port On':'0', 'CW Off':'53','CW On':'54'},
-                    {'id':'6','Name':'FREI',  'Mode':'S','gpio':'21','On': '61','Off':'60','Port On':'0', 'CW Off':'63','CW On':'64'},
-                    {'id':'7','Name':'FREI',  'Mode':'S','gpio':'22','On': '71','Off':'70','Port On':'0', 'CW Off':'73','CW On':'74'},
+                    {'id':'0','Name':'LED',   'Mode':'B','gpio':'25','On': '01',  'Off':'00',  'Port On':'1', 'CW Off':'03','CW On':'04'},
+                    {'id':'1','Name':'10 GHZ','Mode':'B','gpio':'16','On': '1111','Off':'1110','Port On':'1', 'CW Off':'10','CW On':'11'},
+                    {'id':'2','Name':'24 GHZ','Mode':'B','gpio':'17','On': '2221','Off':'2220','Port On':'1', 'CW Off':'20','CW On':'21'},
+                    {'id':'3','Name':'74 GHZ','Mode':'B','gpio':'18','On': '3331','Off':'3330','Port On':'0', 'CW Off':'30','CW On':'31'},
+                    {'id':'4','Name':'76 GHZ','Mode':'B','gpio':'19','On': '4441','Off':'4440','Port On':'0', 'CW Off':'40','CW On':'41'},
+                    {'id':'5','Name':'FREI',  'Mode':'S','gpio':'20','On': '51',  'Off':'50',  'Port On':'0', 'CW Off':'53','CW On':'54'},
+                    {'id':'6','Name':'FREI',  'Mode':'S','gpio':'21','On': '61',  'Off':'60',  'Port On':'0', 'CW Off':'63','CW On':'64'},
+                    {'id':'7','Name':'FREI',  'Mode':'S','gpio':'22','On': '71',  'Off':'70',  'Port On':'0', 'CW Off':'73','CW On':'74'},
                 ]
                 }
         
@@ -443,7 +452,9 @@ class Port:
 
     def set_port_on(self,port_on):
         self.port_on = port_on    
-        if not self.port_on:
+        if self.port_on:
+            self.p.on()
+        else:
             self.p.off()
 
     def set_mode(self,mode):
@@ -716,12 +727,14 @@ class Bake():
 
             # Port ein/aus
             if p.on_cmd == cmd:
-                p.bit_on() 
+                #p.bit_on() 
+                p.set_port_on(True)
                 self.config.set_port_attr(p.id,'Port On','1') 
                 self.config.save()
 
             elif p.off_cmd == cmd:           
-                p.bit_off()     
+                #p.bit_off()     
+                p.set_port_on(False)
                 self.config.set_port_attr(p.id,'Port On','0') 
                 self.config.save()
 
@@ -764,11 +777,13 @@ def main():
 
     p28 = Pin(28,Pin.OUT)    
     m=0
+    st_old = 0
     while True:
         config.wd.feed()
         morse.play_msg()
         console.cmd()
-
+   
+        dtmf.dtmf()
         if dtmf.cmd:
             bake.dtmf_cmd(dtmf.command)
             dtmf.cmd = False
