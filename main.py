@@ -363,7 +363,7 @@ class Config:
                 'saves': '0',
                 'Version': '0.99',
                 'CW Speed': '60',
-                'Bakentext': 'OE5XBM JN78DJ',
+                'Bakentext': 'OE5RNL',
                 'On Time': '5',
                 'Pre Time': '2',
                 'Post Time':'2',
