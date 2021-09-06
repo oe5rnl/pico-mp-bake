@@ -21,7 +21,9 @@ DTMF Befehle
 * Ein Port kann Ein oder ausgeschalten werden 
 * Die Ausgabe des Morsetextes kann für n Sekunden unerbunden werden.
 
-Konfiguration über die serielle Schnittstelle (Eingabe: Enter)
+Konfiguration über die serielle Schnittstelle (9600 8 1 none none) 
+Eingabe: Enter
+
 
 ![console](https://github.com/oe5rnl/pico-mp-bake-mn/blob/master/1.png?raw=true)
 
