@@ -369,14 +369,14 @@ class Config:
                 'Post Time':'2',
                 'CW Off Timeout': '20',
                 'ports':[    
-                    {'id':'0','Name':'LED',   'Mode':'B','gpio':'25','On': '01',  'Off':'00',  'Port On':'1', 'CW Off':'03','CW On':'04'},
-                    {'id':'1','Name':'10 GHZ','Mode':'B','gpio':'16','On': '1111','Off':'1110','Port On':'1', 'CW Off':'10','CW On':'11'},
-                    {'id':'2','Name':'24 GHZ','Mode':'B','gpio':'17','On': '2221','Off':'2220','Port On':'1', 'CW Off':'20','CW On':'21'},
-                    {'id':'3','Name':'74 GHZ','Mode':'B','gpio':'18','On': '3331','Off':'3330','Port On':'1', 'CW Off':'30','CW On':'31'},
-                    {'id':'4','Name':'76 GHZ','Mode':'B','gpio':'19','On': '4441','Off':'4440','Port On':'1', 'CW Off':'40','CW On':'41'},
-                    {'id':'5','Name':'FREI',  'Mode':'S','gpio':'20','On': '51',  'Off':'50',  'Port On':'0', 'CW Off':'53','CW On':'54'},
-                    {'id':'6','Name':'FREI',  'Mode':'S','gpio':'21','On': '61',  'Off':'60',  'Port On':'0', 'CW Off':'63','CW On':'64'},
-                    {'id':'7','Name':'FREI',  'Mode':'S','gpio':'22','On': '71',  'Off':'70',  'Port On':'0', 'CW Off':'73','CW On':'74'},
+                    {'id':'0','Name':'LED',   'Mode':'B','gpio':'25','On': '01', 'Off':'00',  'Port On':'1', 'CW Off':'03','CW On':'04'},
+                    {'id':'1','Name':'10 GHZ','Mode':'B','gpio':'16','On': '11', 'Off':'10','Port On':'1', 'CW Off':'10','CW On':'11'},
+                    {'id':'2','Name':'24 GHZ','Mode':'B','gpio':'17','On': '21', 'Off':'20','Port On':'1', 'CW Off':'20','CW On':'21'},
+                    {'id':'3','Name':'74 GHZ','Mode':'B','gpio':'18','On': '31', 'Off':'30','Port On':'1', 'CW Off':'30','CW On':'31'},
+                    {'id':'4','Name':'76 GHZ','Mode':'B','gpio':'19','On': '41', 'Off':'4440','Port On':'1', 'CW Off':'40','CW On':'41'},
+                    {'id':'5','Name':'FREI',  'Mode':'S','gpio':'20','On': '51', 'Off':'50',  'Port On':'0', 'CW Off':'53','CW On':'54'},
+                    {'id':'6','Name':'FREI',  'Mode':'S','gpio':'21','On': '61', 'Off':'60',  'Port On':'0', 'CW Off':'63','CW On':'64'},
+                    {'id':'7','Name':'FREI',  'Mode':'S','gpio':'22','On': '71', 'Off':'70',  'Port On':'0', 'CW Off':'73','CW On':'74'},
                 ]
                 }
         
