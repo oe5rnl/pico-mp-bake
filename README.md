@@ -54,6 +54,8 @@ Parity:    none
 Protokoll: none
 ```
 
+Die serielle Schnittstelle am USB Stecker wird nur zum hochladen des Programmes verwendet.
+
 # Bedienung des Controllers (Schnittstelle)
 
 Eingabe: Enter

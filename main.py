@@ -831,7 +831,7 @@ class Bake():
 def main():
     #print('bake')
     config = Config()
-    config.wd.start(False)
+    config.wd.start(False) # WDT erst nach config laden starten, damit während der config Bearbeitung kein Reset passiert
     bake = Bake(config)
     console = Console(config, bake.set_attributes)
     dtmf = Dtmf()

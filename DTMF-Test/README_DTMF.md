@@ -12,6 +12,51 @@ pip install numpy sounddevice
 
 ## Verwendung
 
+### Command-Line-Optionen
+
+```bash
+# Interaktiver Modus
+python3 dtmf_player.py
+
+# Mit spezifischem Audio-Device
+python3 dtmf_player.py -d 5
+
+# Test-Datei ausführen
+python3 dtmf_player.py -f dtmf_test
+
+# Test-Datei mit spezifischem Device
+python3 dtmf_player.py -d 5 -f dtmf_test
+
+# Audio-Devices auflisten
+python3 dtmf_player.py --list-devices
+
+# Hilfe anzeigen
+python3 dtmf_player.py -h
+```
+
+**Parameter:**
+- `-d DEVICE_ID, --device DEVICE_ID` - Audio-Device ID verwenden
+- `-f FILE, --file FILE` - Test-Datei mit DTMF-Sequenzen ausführen
+- `--list-devices` - Zeigt verfügbare Audio-Devices
+
+### Test-Datei Format
+
+Eine Test-Datei enthält DTMF-Sequenzen mit Verzögerungen:
+
+```
+delay=1
+*1111#
+delay=2
+*2220#
+delay=0.5
+*01#
+```
+
+Format:
+- `delay=<sekunden>` - Wartezeit in Sekunden (kann Dezimalzahl sein)
+- Nächste Zeile: DTMF-Sequenz die ausgegeben wird
+- Leere Zeilen und Zeilen mit `#` am Anfang werden ignoriert
+
 ### Interaktiver Modus
 
 Starte das Script:
@@ -73,24 +118,77 @@ player = DTMFPlayer(
 ## Beispiele
 
 ```bash
-# Telefonnummer wählen
+# Interaktiver Modus
 python3 dtmf_player.py
 DTMF> 0664123456
 
 # DTMF-Befehl senden
+python3 dtmf_player.py
 DTMF> *10#
 
 # Mit Pausen
+python3 dtmf_player.py
 DTMF> *1 234#
 
 # Audio-Devices anzeigen
+python3 dtmf_player.py
 DTMF> devices
 
 # Zu anderem Device wechseln
+python3 dtmf_player.py
 DTMF> device 3
 
 # Script mit spezifischem Device starten
-python3 dtmf_player.py 5
+python3 dtmf_player.py -d 5
+
+# Test-Datei ausführen
+python3 dtmf_player.py -f dtmf_test
+
+# Test-Datei mit spezifischem Device
+python3 dtmf_player.py -d 5 -f dtmf_test
+
+# Alle verfügbaren Audio-Devices auflisten
+python3 dtmf_player.py --list-devices
+```
+
+### Beispiel Test-Datei
+
+Erstelle eine Datei `dtmf_test` mit folgendem Inhalt:
+
+```
+# Test-Sequenz für Beacon-Controller
+# Format: delay=<sekunden> gefolgt von DTMF-Sequenz
+
+# LED einschalten
+delay=1
+*01#
+
+# Warten und LED ausschalten
+delay=3
+*00#
+
+# 10 GHz Band einschalten
+delay=1
+*11#
+
+# Kurz warten
+delay=2
+*10#
+
+# Mehrere Ports testen
+delay=1
+*21#
+delay=1
+*31#
+delay=2
+*20#
+delay=1
+*30#
+```
+
+Ausführen mit:
+```bash
+python3 dtmf_player.py -f dtmf_test
 ```
 
 ## Troubleshooting

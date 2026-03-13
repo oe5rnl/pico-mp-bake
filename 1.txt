@@ -1,0 +1,23 @@
+eacon-Controller by OE5RNL / OE5NVL
+
+Code-Version   : 1.0c 2026-03-13
+Config-Version : 0.99
+Saves          : 1327
+Core Temerature: 22.36
+
+CW Speed       : 60
+Bakentext      : OE5XBM JN78DJ
+On Time        : 5
+Pre Time       : 1
+Post Time      : 1
+CW Timeout     : 1800
+
+Port  Port on/off Port Name   Bake/Switch DTMF-Cmd-On  DTMF-Cmd-Off  Temp-CW-Cmd-On Temp-CW-Cmd-Off
+  0       Ein     LED              B           01           00             03             04       
+  1       Ein     10 GHZ           S          1111         1110                                    
+  2       Ein     24 GHZ           S          2221         2220                                    
+  3       Ein     74 GHZ           S          3331         3330                                    
+  4       Ein     76 GHZ           S          4441         4440                                    
+  5       Aus     FREI             S           51           50                                     
+  6       Ein     FREI             S           61           60                                     
+  7       Ein     FREI             S           71           70  

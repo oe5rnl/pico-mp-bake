@@ -11,6 +11,9 @@ pip install sounddevice
 import numpy as np
 import sounddevice as sd
 import time
+import argparse
+import sys
+import os
 
 
 class DTMFPlayer:
@@ -165,25 +168,131 @@ class DTMFPlayer:
                     print(f"  [{i:2d}] {name} ({channels} Kanäle){marker}")
         print("-" * 60)
         print("Verwendung: device <id>")
+    
+    def play_test_file(self, filename):
+        """
+        Liest und führt eine Test-Datei aus
+        
+        Format der Datei:
+            delay=<sekunden>
+            <dtmf_sequenz>
+            delay=<sekunden>
+            <dtmf_sequenz>
+            ...
+        
+        Args:
+            filename: Pfad zur Test-Datei
+        """
+        if not os.path.exists(filename):
+            print(f"Fehler: Datei '{filename}' nicht gefunden")
+            return False
+        
+        print(f"\n{'='*60}")
+        print(f"Führe Test-Datei aus: {filename}")
+        print(f"{'='*60}\n")
+        
+        try:
+            with open(filename, 'r') as f:
+                lines = f.readlines()
+            
+            i = 0
+            step = 1
+            while i < len(lines):
+                line = lines[i].strip()
+                
+                if not line or line.startswith('#'):
+                    # Überspringe leere Zeilen und Kommentare
+                    i += 1
+                    continue
+                
+                if line.startswith('delay='):
+                    # Verzögerung extrahieren
+                    try:
+                        delay = float(line.split('=')[1])
+                        print(f"[Schritt {step}] Warte {delay} Sekunden...")
+                        time.sleep(delay)
+                        
+                        # Nächste Zeile sollte die DTMF-Sequenz sein
+                        i += 1
+                        if i < len(lines):
+                            sequence = lines[i].strip()
+                            if sequence and not sequence.startswith('#'):
+                                print(f"[Schritt {step}] ", end="")
+                                self.play_sequence(sequence)
+                                step += 1
+                    except (ValueError, IndexError) as e:
+                        print(f"Fehler beim Parsen von Zeile {i+1}: {line}")
+                        print(f"  {e}")
+                
+                i += 1
+            
+            print(f"\n{'='*60}")
+            print(f"Test-Datei abgeschlossen!")
+            print(f"{'='*60}\n")
+            return True
+            
+        except Exception as e:
+            print(f"Fehler beim Lesen der Datei: {e}")
+            return False
 
 
 def main():
     """Hauptfunktion mit interaktiver Konsole"""
-    import sys
-    
     # Parse command-line arguments
-    device = None
-    if len(sys.argv) > 1:
-        try:
-            device = int(sys.argv[1])
-            print(f"Verwende Audio-Device: {device}")
-        except ValueError:
-            print(f"Fehler: '{sys.argv[1]}' ist keine gültige Device-ID")
-            print("Verwendung: python3 dtmf_player.py [device_id]")
-            sys.exit(1)
+    parser = argparse.ArgumentParser(
+        description='DTMF Tone Generator - Erzeugt und spielt DTMF-Töne',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Beispiele:
+  %(prog)s                    # Interaktiver Modus
+  %(prog)s -d 5               # Interaktiv mit Audio-Device 5
+  %(prog)s -f dtmf_test       # Führe Test-Datei aus
+  %(prog)s -d 5 -f dtmf_test  # Device 5 mit Test-Datei
+
+Test-Datei Format:
+  delay=<sekunden>
+  <dtmf_sequenz>
+  delay=<sekunden>
+  <dtmf_sequenz>
+  ...
+        """
+    )
+    
+    parser.add_argument('-d', '--device', 
+                        type=int, 
+                        metavar='DEVICE_ID',
+                        help='Audio-Device ID (siehe --list-devices)')
+    
+    parser.add_argument('-f', '--file', 
+                        type=str, 
+                        metavar='FILE',
+                        help='Test-Datei mit DTMF-Sequenzen ausführen')
+    
+    parser.add_argument('--list-devices', 
+                        action='store_true',
+                        help='Zeigt verfügbare Audio-Devices und beendet')
+    
+    args = parser.parse_args()
+    
+    # Liste Devices und beende
+    if args.list_devices:
+        temp_player = DTMFPlayer()
+        temp_player.list_audio_devices()
+        sys.exit(0)
+    
+    # Erstelle Player mit optionalem Device
+    device = args.device
+    if device is not None:
+        print(f"Verwende Audio-Device: {device}")
     
     player = DTMFPlayer(device=device)
     
+    # Wenn Test-Datei angegeben, führe sie aus und beende
+    if args.file:
+        success = player.play_test_file(args.file)
+        sys.exit(0 if success else 1)
+    
+    # Ansonsten: Interaktiver Modus
     print("=" * 60)
     print("DTMF Tone Generator")
     print("=" * 60)
