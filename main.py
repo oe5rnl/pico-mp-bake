@@ -356,7 +356,7 @@ class Config:
 
     def __init__(self):
 
-        self.wd = Wdt(60000)       
+        self.wd = Wdt(8300)       
         self.config_file = 'config.json'
 
         self.c = {
@@ -370,10 +370,10 @@ class Config:
                 'CW Off Timeout': '20',
                 'ports':[    
                     {'id':'0','Name':'LED',   'Mode':'B','gpio':'25','On': '01', 'Off':'00',  'Port On':'1', 'CW Off':'03','CW On':'04'},
-                    {'id':'1','Name':'10 GHZ','Mode':'B','gpio':'16','On': '11', 'Off':'10',  'Port On':'1', 'CW Off':'10','CW On':'11'},
-                    {'id':'2','Name':'24 GHZ','Mode':'B','gpio':'17','On': '21', 'Off':'20',  'Port On':'1', 'CW Off':'20','CW On':'21'},
-                    {'id':'3','Name':'74 GHZ','Mode':'B','gpio':'18','On': '31', 'Off':'30',  'Port On':'1', 'CW Off':'30','CW On':'31'},
-                    {'id':'4','Name':'76 GHZ','Mode':'B','gpio':'19','On': '41', 'Off':'4440','Port On':'1', 'CW Off':'40','CW On':'41'},
+                    {'id':'1','Name':'10 GHZ','Mode':'S','gpio':'16','On': '11', 'Off':'10',  'Port On':'1', 'CW Off':'10','CW On':'11'},
+                    {'id':'2','Name':'24 GHZ','Mode':'S','gpio':'17','On': '21', 'Off':'20',  'Port On':'1', 'CW Off':'20','CW On':'21'},
+                    {'id':'3','Name':'74 GHZ','Mode':'S','gpio':'18','On': '31', 'Off':'30',  'Port On':'1', 'CW Off':'30','CW On':'31'},
+                    {'id':'4','Name':'76 GHZ','Mode':'S','gpio':'19','On': '41', 'Off':'4440','Port On':'1', 'CW Off':'40','CW On':'41'},
                     {'id':'5','Name':'FREI',  'Mode':'S','gpio':'20','On': '51', 'Off':'50',  'Port On':'0', 'CW Off':'53','CW On':'54'},
                     {'id':'6','Name':'FREI',  'Mode':'S','gpio':'21','On': '61', 'Off':'60',  'Port On':'0', 'CW Off':'63','CW On':'64'},
                     {'id':'7','Name':'FREI',  'Mode':'S','gpio':'22','On': '71', 'Off':'70',  'Port On':'0', 'CW Off':'73','CW On':'74'},
@@ -831,7 +831,7 @@ class Bake():
 def main():
     #print('bake')
     config = Config()
-    config.wd.start(False) # WDT erst nach config laden starten, damit während der config Bearbeitung kein Reset passiert
+    config.wd.start(True) 
     bake = Bake(config)
     console = Console(config, bake.set_attributes)
     dtmf = Dtmf()
