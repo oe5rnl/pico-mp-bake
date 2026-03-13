@@ -1,11 +1,15 @@
 {
-    "python.linting.enabled": true,
-    "python.analysis.typeshedPaths": [
-        ".vscode\\Pico-Stub"
-    ],
     "python.languageServer": "Pylance",
     "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportMissingModuleSource": "none"
+    },
+    "python.terminal.activateEnvironment": false,
+    "micropico.openOnStart": true,
+    "python.analysis.typeshedPaths": [
+        "~/.micropico-stubs/included"
+    ],
     "python.analysis.extraPaths": [
-        ".vscode\\Pico-Stub\\stubs"
+        "~/.micropico-stubs/included"
     ]
 }

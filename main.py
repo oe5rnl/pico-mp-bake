@@ -18,7 +18,8 @@ from machine import WDT
 # https://kofler.info/wp-content/uploads/pico-gpios.png
 # https://www.accessengineeringlibrary.com/content/book/9781260117585/back-matter/appendix1
 
-code_version = '1.0b 2021-09-05'
+#code_version = '1.0b 2021-09-05'
+code_version = '1.0c 2026-03-13'
 
 class Timeout():
 
@@ -166,7 +167,7 @@ class Line:
         while True:
             self.wd.feed()
             c = self.read_char()       
-            if ord(c) == 0x7f:  # bs           
+            if ord(c) == 0x7f or ord(c) == 0x08:  # bs (DEL oder BS)
                 if l > 0:
                     l -= 1
                     txt = txt[:-1]
@@ -186,9 +187,8 @@ class Line:
                         pass
                     
             if c == b'\r':
-                if l>0:
-                    # trim beide Seiten, keine doppelten leerzeichen
-                    return " ".join(txt.decode().strip().split())
+                # trim beide Seiten, keine doppelten leerzeichen
+                return " ".join(txt.decode().strip().split())
 
         return txt
 
@@ -212,7 +212,7 @@ class Console:
         self.ueberschrift = "{0:^5}{1:^13}{2:<12}{3:^12}{4:^12}{5:^15}{6:^15}{7:^15}"
         self.werte        = "{0:^5}{1:^13}{2:<12}{3:^12}{4:^12}{5:^15}{6:^15}{7:^15}"
 
-        self.u = UART(id=0, baudrate=9600, bits=8, parity=None, stop=1, timeout=0, rxbuf=1024, txbuf=2048)
+        self.u = UART(0, baudrate=9600, bits=8, parity=None, stop=1, timeout=0, rxbuf=1024, txbuf=2048)
         self.flush()
         self.u.write(b'\n\r\n\r\n\r\n\rBeacon-Controller by OE5RNL / OE5NVL\n\r')
         self.u.write(b'\n\rpress Enter for config >')
@@ -345,7 +345,7 @@ class Wdt:
     # we can't stop the wd after start !
     def start(self,v):
         if v:
-            self.wd = WDT(timeout=self.t)
+            self.wd = WDT(id=0, timeout=self.t)
             self.state = True
              
     def feed(self):
@@ -356,7 +356,7 @@ class Config:
 
     def __init__(self):
 
-        self.wd = Wdt(8000)       
+        self.wd = Wdt(60000)       
         self.config_file = 'config.json'
 
         self.c = {
@@ -370,9 +370,9 @@ class Config:
                 'CW Off Timeout': '20',
                 'ports':[    
                     {'id':'0','Name':'LED',   'Mode':'B','gpio':'25','On': '01', 'Off':'00',  'Port On':'1', 'CW Off':'03','CW On':'04'},
-                    {'id':'1','Name':'10 GHZ','Mode':'B','gpio':'16','On': '11', 'Off':'10','Port On':'1', 'CW Off':'10','CW On':'11'},
-                    {'id':'2','Name':'24 GHZ','Mode':'B','gpio':'17','On': '21', 'Off':'20','Port On':'1', 'CW Off':'20','CW On':'21'},
-                    {'id':'3','Name':'74 GHZ','Mode':'B','gpio':'18','On': '31', 'Off':'30','Port On':'1', 'CW Off':'30','CW On':'31'},
+                    {'id':'1','Name':'10 GHZ','Mode':'B','gpio':'16','On': '11', 'Off':'10',  'Port On':'1', 'CW Off':'10','CW On':'11'},
+                    {'id':'2','Name':'24 GHZ','Mode':'B','gpio':'17','On': '21', 'Off':'20',  'Port On':'1', 'CW Off':'20','CW On':'21'},
+                    {'id':'3','Name':'74 GHZ','Mode':'B','gpio':'18','On': '31', 'Off':'30',  'Port On':'1', 'CW Off':'30','CW On':'31'},
                     {'id':'4','Name':'76 GHZ','Mode':'B','gpio':'19','On': '41', 'Off':'4440','Port On':'1', 'CW Off':'40','CW On':'41'},
                     {'id':'5','Name':'FREI',  'Mode':'S','gpio':'20','On': '51', 'Off':'50',  'Port On':'0', 'CW Off':'53','CW On':'54'},
                     {'id':'6','Name':'FREI',  'Mode':'S','gpio':'21','On': '61', 'Off':'60',  'Port On':'0', 'CW Off':'63','CW On':'64'},
@@ -603,7 +603,9 @@ class Morse:
         # dit length in milliseconds : 60ms  = 100bpm = 20 wpm
         # dit length in milliseconds :  20ms = 300bpm = 60 wpm
 
-        bpm = int(self.config.get_attr('CW Speed')) 
+        bpm = int(self.config.get_attr('CW Speed'))
+        if bpm == 0:
+            bpm = 1
         wpm = int(bpm/5)
         ms = int(60/(50*(bpm/5))*1000)
 
@@ -654,16 +656,29 @@ class Morse:
         # pre
         if self.state == -201:
             self.ports_off()
-            self.tim.init(period=int(int(self.config.get_attr('Pre Time'))*1000), mode=Timer.ONE_SHOT, callback=self.wait)
-            self.next_state = -1 # CW Text ausgeben
-            self.state = 999
+            self.txt=self.config.get_attr('Bakentext')
+            if len(self.txt) > 0:
+                self.tim.init(period=int(int(self.config.get_attr('Pre Time'))*1000), mode=Timer.ONE_SHOT, callback=self.wait)
+                self.next_state = -1 # CW Text ausgeben
+                self.state = 999
+            else:
+                # Bakentext leer, Pre Time ausgeben dann direkt zur Post Time
+                self.tim.init(period=int(int(self.config.get_attr('Pre Time'))*1000), mode=Timer.ONE_SHOT, callback=self.wait)
+                self.next_state = -202
+                self.state = 999
 
         # post
         if self.state == -202:
-            self.tim.init(period=int(int(self.config.get_attr('Post Time'))*1000), mode=Timer.ONE_SHOT, callback=self.wait)
-            self.ports_off()
-            self.next_state = -200
-            self.state = 999
+            post_time = int(int(self.config.get_attr('Post Time'))*1000)
+            if post_time > 0:
+                self.tim.init(period=post_time, mode=Timer.ONE_SHOT, callback=self.wait)
+                self.ports_off()
+                self.next_state = -200
+                self.state = 999
+            else:
+                # Post Time ist 0, Ausgabe nicht ausschalten
+                self.next_state = -200
+                self.state = -200
 
         if self.state == -1:
             self.ch=''
@@ -816,7 +831,7 @@ class Bake():
 def main():
     #print('bake')
     config = Config()
-    config.wd.start(True)
+    config.wd.start(False)
     bake = Bake(config)
     console = Console(config, bake.set_attributes)
     dtmf = Dtmf()

@@ -1,0 +1,27 @@
+
+Beacon-Controller by OE5RNL / OE5NVL
+
+Code-Version   : 1.0b 2021-09-05
+Config-Version : 0.99
+Saves          : 1204
+Core Temerature: 19.55
+
+CW Speed       : 60
+Bakentext      : OE5XBM JN78DJ
+On Time        : 90
+Pre Time       : 1
+Post Time      : 1
+CW Timeout     : 1800
+
+Port  Port on/off Port Name   Bake/Switch DTMF-Cmd-On  DTMF-Cmd-Off  Temp-CW-Cmd-On Temp-CW-Cmd-Off
+  0       Ein     LED              B           01           00             03             04       
+  1       Ein     10 GHZ           B          1111         1110            10             11       
+  2       Ein     24 GHZ           B          2221         2220            20             21       
+  3       Ein     74 GHZ           B          3331         3330            30             31       
+  4       Ein     76 GHZ           B          4441         4440            40             41       
+  5       Aus     FREI             S           51           50                                     
+  6       Aus     FREI             S           61           60                                     
+  7       Aus     FREI             S           71           70                                     
+ 
+0-7(edit Port), a(edit Allgemein), r(eset) c(print config) s(ave) >
+
